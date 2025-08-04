@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Parent Project Information -->
+    <groupId>com.ratelimiter</groupId>
+    <artifactId>api-rate-limiter-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging> <!-- IMPORTANT: Parent POMs must have 'pom' packaging -->
+    <name>api-rate-limiter-parent</name>
+    <description>Parent project for the API Rate Limiter system</description>
+
+    <!--
+    This section defines the sub-projects (modules) that this parent POM will manage.
+    Maven will look for a pom.xml file inside each of these directories.
+    -->
+    <modules>
+        <module>gateway-service</module>
+        <module>monitoring-service</module>
+        <module>shared-lib</module>
+    </modules>
+
+    <!--
+    Properties section to define versions for dependencies and plugins in one place.
+    This ensures all modules use the same versions, preventing conflicts.
+    -->
+    <properties>
+        <java.version>17</java.version>
+        <spring-boot.version>3.2.0</spring-boot.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+    <!--
+    Dependency Management: This section defines the versions of dependencies that child modules CAN use.
+    It does not add the dependencies to the modules automatically.
+    This centralizes version control for consistency across the entire project.
+    -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Boot Dependency Bill of Materials (BOM) -->
+            <!-- This imports the recommended versions for all Spring Boot dependencies -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <!--
+        Plugin Management: Similar to dependencyManagement, this configures plugins for child modules.
+        Child modules can then use these plugins without specifying the version.
+        -->
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>
