@@ -8,6 +8,8 @@ class MonitoringServiceApplicationTests {
 
 	@Test
 	void contextLoads() {
+		// This simple test verifies that the Spring application context
+		// can start up successfully with all the configurations.
 	}
 
 }
