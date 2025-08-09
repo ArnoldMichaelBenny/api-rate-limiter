@@ -10,18 +10,5 @@ services:
     volumes:
       - redis_data:/data
 
-  postgres:
-    image: "postgres:15-alpine"
-    container_name: rate-limiter-postgres
-    ports:
-      - "5432:5432" # Exposes PostgreSQL on your local machine's port 5432
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: monitoring_db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
 volumes:
   redis_data:
-  postgres_data:

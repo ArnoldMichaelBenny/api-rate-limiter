@@ -22,3 +22,12 @@ spring:
 # Custom application properties
 rate-limiter:
   requests-per-minute: 10
+
+monitoring-service:
+  url: http://localhost:8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health"

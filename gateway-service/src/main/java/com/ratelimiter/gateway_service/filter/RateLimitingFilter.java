@@ -28,7 +28,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
         String clientId = request.getRemoteAddr();
 
-        if (rateLimiter.isAllowed(clientId)) {
+        if (rateLimiter.isAllowed(clientId, request)) {
             filterChain.doFilter(request, response);
         } else {
             log.warn("Rate limit exceeded for client: {}", clientId);

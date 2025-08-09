@@ -1,0 +1,99 @@
+GET http://localhost:8080/api/hello
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.2.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-08-09T230750.429.txt
+
+###
+
+GET http://localhost:8080/api/hello
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.2.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-08-09T230712.429.txt
+
+###
+
+GET http://localhost:8080/api/hello
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.2.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-08-09T230711.200.txt
+
+###
+
+GET http://localhost:8080/api/hello
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.2.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-08-09T230710.200.txt
+
+###
+
+GET http://localhost:8080/api/hello
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.2.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-08-09T230709.200.txt
+
+###
+
+GET http://localhost:8080/api/hello
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.2.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-08-09T230708.200.txt
+
+###
+
+GET http://localhost:8080/api/hello
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.2.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-08-09T230705.200.txt
+
+###
+
+GET http://localhost:8080/api/hello
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.2.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-08-09T225401.500.json
+
+###
+
+GET http://localhost:8080/api/hello
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.2.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-08-09T225352.500.json
+
+###
+
+GET http://localhost:8080/api/hello
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.2.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-08-09T225342.500.json
+
+###
+
+GET http://localhost:8080/api/hello
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.2.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-08-09T225130.500.json
+
+###
+
