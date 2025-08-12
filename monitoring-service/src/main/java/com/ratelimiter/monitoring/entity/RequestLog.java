@@ -1,29 +1,34 @@
 package com.ratelimiter.monitoring.entity;
 
-import jakarta.persistence.*;
+import com.ratelimiter.shared.enums.RequestStatus;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "request_logs")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class RequestLog {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, name = "client_key")
-    private String clientKey;
+    private String ipAddress;
+    private String path;
+    private LocalDateTime timestamp;
 
-    private String endpoint;
-    private Instant timestamp;
-    private String algorithm;
-    private boolean allowed;
+    @Enumerated(EnumType.STRING)
+    private RequestStatus status;
 }

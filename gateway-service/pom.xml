@@ -21,11 +21,18 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
+
+		<!-- Shared Library for DTOs -->
+		<dependency>
+			<groupId>com.ratelimiter</groupId>
+			<artifactId>shared-lib</artifactId>
+		</dependency>
+
 		<!-- Lombok with provided scope -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<scope>provided</scope>
+			<optional>true</optional>
 		</dependency>
 		<!-- Test Dependencies -->
 		<dependency>
