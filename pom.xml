@@ -35,6 +35,12 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- Project Modules -->
+            <dependency>
+                <groupId>com.ratelimiter</groupId>
+                <artifactId>shared-lib</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- Testcontainers BOM -->
             <dependency>
                 <groupId>org.testcontainers</groupId>
@@ -58,10 +64,9 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.13.0</version>
+                    <version>3.11.0</version>
                     <configuration>
-                        <source>${java.version}</source>
-                        <target>${java.version}</target>
+                        <release>${java.version}</release>
                         <annotationProcessorPaths>
                             <path>
                                 <groupId>org.projectlombok</groupId>

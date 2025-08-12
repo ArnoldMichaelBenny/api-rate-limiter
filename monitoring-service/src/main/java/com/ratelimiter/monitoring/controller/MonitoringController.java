@@ -1,26 +1,25 @@
 package com.ratelimiter.monitoring.controller;
 
 import com.ratelimiter.monitoring.service.MonitoringService;
-import com.ratelimiter.shared.RateLimitEvent;
+import com.ratelimiter.shared.dto.RequestLogDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
+@RequestMapping("/api/v1/logs")
 @RequiredArgsConstructor
 public class MonitoringController {
 
     private final MonitoringService monitoringService;
 
-    /**
-     * Receives rate limit events from the Gateway service via WebSocket.
-     * It persists the event and then broadcasts it to all subscribed frontend clients.
-     */
-    @MessageMapping("/rate-limit-event") // Listens for messages on "/app/rate-limit-event"
-    @SendTo("/topic/rate-limit-events")  // Broadcasts the return value to this topic
-    public RateLimitEvent handleRateLimitEvent(RateLimitEvent event) {
-        monitoringService.processAndSaveEvent(event);
-        return event;
+    @PostMapping
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void logRequest(@RequestBody RequestLogDto requestLogDto) {
+        monitoringService.saveRequestLog(requestLogDto);
     }
 }

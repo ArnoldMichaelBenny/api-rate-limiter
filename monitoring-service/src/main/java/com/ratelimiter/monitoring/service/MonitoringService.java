@@ -2,7 +2,8 @@ package com.ratelimiter.monitoring.service;
 
 import com.ratelimiter.monitoring.entity.RequestLog;
 import com.ratelimiter.monitoring.repository.RequestLogRepository;
-import com.ratelimiter.shared.RateLimitEvent;
+import com.ratelimiter.shared.dto.RequestLogDto;
+import com.ratelimiter.shared.enums.RequestStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,14 +17,13 @@ public class MonitoringService {
     private final RequestLogRepository requestLogRepository;
 
     @Transactional
-    public void processAndSaveEvent(RateLimitEvent event) {
-        log.info("Processing rate limit event for client [{}]: {}", event.getClientKey(), event.isAllowed() ? "ALLOWED" : "BLOCKED");
+    public void saveRequestLog(RequestLogDto requestLogDto) {
+        log.info("Processing request log for IP [{}]: Status {}", requestLogDto.getIpAddress(), requestLogDto.getStatus());
         RequestLog logEntry = RequestLog.builder()
-                .clientKey(event.getClientKey())
-                .endpoint(event.getEndpoint())
-                .timestamp(event.getTimestamp())
-                .algorithm(event.getAlgorithm())
-                .allowed(event.isAllowed())
+                .ipAddress(requestLogDto.getIpAddress())
+                .path(requestLogDto.getPath())
+                .timestamp(requestLogDto.getTimestamp())
+                .status(requestLogDto.getStatus())
                 .build();
 
         requestLogRepository.save(logEntry);
