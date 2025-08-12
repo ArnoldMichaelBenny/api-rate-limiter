@@ -1,5 +1,6 @@
 package com.ratelimiter.monitoring.service;
 
+import com.ratelimiter.monitoring.dto.AnalyticsDto;
 import com.ratelimiter.monitoring.entity.RequestLog;
 import com.ratelimiter.monitoring.repository.RequestLogRepository;
 import com.ratelimiter.shared.dto.RequestLogDto;
@@ -28,5 +29,13 @@ public class MonitoringService {
 
         requestLogRepository.save(logEntry);
         log.debug("Saved request log to database: {}", logEntry.getId());
+    }
+
+    public AnalyticsDto getAnalytics() {
+        long allowed = requestLogRepository.countByStatus(RequestStatus.ALLOWED);
+        long blocked = requestLogRepository.countByStatus(RequestStatus.BLOCKED);
+        long total = allowed + blocked;
+
+        return new AnalyticsDto(total, allowed, blocked);
     }
 }
