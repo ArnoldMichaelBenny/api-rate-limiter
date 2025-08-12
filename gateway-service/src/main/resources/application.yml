@@ -18,7 +18,14 @@ rate-limiter:
   requests-per-minute: 10
 
 monitoring-service:
-  url: http://localhost:8081
+  url: "http://localhost:8081"
+  log-endpoint: "/api/v1/logs"
+
+api:
+  keys:
+  # In a real application, use a secure vault (e.g., HashiCorp Vault, AWS Secrets Manager)
+  - key: "test-key-123"
+    secret: "test-secret-456" # This should be a securely hashed value in production
 
 management:
   endpoints:
