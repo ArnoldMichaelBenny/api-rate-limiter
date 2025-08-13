@@ -3,32 +3,22 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
-    <!-- Inherit from the project's parent POM for consistent dependency versions and properties -->
     <parent>
         <groupId>com.ratelimiter</groupId>
         <artifactId>api-rate-limiter-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version> <!-- This version should match your parent POM -->
+        <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>shared-lib</artifactId>
     <name>shared-lib</name>
-    <description>Shared library for DTOs and common code</description>
+    <description>Shared library for DTOs and other common classes</description>
 
     <dependencies>
-        <!-- Lombok for reducing boilerplate code in DTOs (e.g., getters, setters) -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
-        </dependency>
-
-        <!-- JUnit for testing the shared code, if needed -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

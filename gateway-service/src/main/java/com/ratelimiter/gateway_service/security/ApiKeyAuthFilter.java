@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,10 +33,11 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         String requestApiKey = request.getHeader(API_KEY_HEADER);
         String requestApiSecret = request.getHeader(API_SECRET_HEADER);
 
+        // ✅ FIX: Immediately reject if headers are missing.
         if (requestApiKey == null || requestApiSecret == null) {
-            log.warn("Missing API Key/Secret headers");
-            filterChain.doFilter(request, response);
-            return;
+            log.warn("API Key or Secret is missing in the request headers.");
+            sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "API Key or Secret is missing.");
+            return; // Stop the filter chain.
         }
 
         if (isValidApiKey(requestApiKey, requestApiSecret)) {
@@ -47,15 +49,25 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } else {
-            log.warn("Invalid API Key provided: {}", requestApiKey);
-            // Do not set authentication, subsequent filters will deny access
+            log.warn("Invalid API Key or Secret provided: {}", requestApiKey);
+            // ✅ FIX: Immediately reject if credentials are invalid.
+            sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "Invalid API Key or Secret.");
+            return; // Stop the filter chain.
         }
 
+        // ✅ IMPORTANT: Only continue the chain if authentication was successful.
         filterChain.doFilter(request, response);
     }
 
     private boolean isValidApiKey(String key, String secret) {
         return apiKeyProperties.getKeys().stream()
                 .anyMatch(apiKey -> apiKey.getKey().equals(key) && apiKey.getSecret().equals(secret));
+    }
+
+    // ✅ Helper method to create a consistent JSON error response.
+    private void sendErrorResponse(HttpServletResponse response, HttpStatus status, String message) throws IOException {
+        response.setStatus(status.value());
+        response.setContentType("application/json");
+        response.getWriter().write(String.format("{\"error\":\"%s\",\"message\":\"%s\"}", status.getReasonPhrase(), message));
     }
 }
