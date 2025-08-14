@@ -1,18 +1,14 @@
 package com.ratelimiter.monitoring.entity;
 
 import com.ratelimiter.shared.enums.RequestStatus;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+// ✅ 1. Import java.time.Instant instead of LocalDateTime
+import java.time.Instant;
 
 @Entity
 @Data
@@ -27,7 +23,9 @@ public class RequestLog {
 
     private String ipAddress;
     private String path;
-    private LocalDateTime timestamp;
+
+    // ✅ 2. Change the field type from LocalDateTime to Instant
+    private Instant timestamp;
 
     @Enumerated(EnumType.STRING)
     private RequestStatus status;

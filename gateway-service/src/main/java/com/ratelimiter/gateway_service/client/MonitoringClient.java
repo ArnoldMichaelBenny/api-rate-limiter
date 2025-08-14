@@ -1,6 +1,8 @@
 package com.ratelimiter.gateway_service.client;
 
-// This interface is a placeholder to satisfy the compiler for the old, disabled interceptor.
+import com.ratelimiter.shared.dto.RequestLogDto;
+
+// ✅ Updated to accept the full DTO
 public interface MonitoringClient {
-    void log(String message);
+    void logRequest(RequestLogDto requestLogDto);
 }

@@ -2,16 +2,14 @@ package com.ratelimiter.monitoring;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories; // IMPORT THIS
+import org.springframework.scheduling.annotation.EnableScheduling; // 1. Import this
 
-// THE FIX: This annotation explicitly tells Spring Boot to scan for and
-// enable your JPA repositories in this package and its sub-packages.
-@EnableJpaRepositories
 @SpringBootApplication
+@EnableScheduling // 2. Add this annotation
 public class MonitoringServiceApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(MonitoringServiceApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(MonitoringServiceApplication.class, args);
+    }
 
 }

@@ -45,4 +45,4 @@ management:
         include: "health"
 
 monitoring-service:
-  url: http://localhost:8081/api/monitoring
+  url: http://localhost:8081/api/v1
