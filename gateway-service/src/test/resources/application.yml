@@ -1,0 +1,9 @@
+# Test-specific properties
+
+monitoring-service:
+  url: "http://localhost:9999/test-monitoring"
+  log-endpoint: "/api/v1/test-logs"
+
+rate-limiter:
+  default-limit: 10
+  configs: [] # No specific configs needed for the context test

@@ -1,10 +1,6 @@
 # gateway-service/src/main/resources/application.yml
 server:
   port: 8080
-  forward-headers-strategy: framework
-  tomcat:
-    remoteip:
-      internal-proxies: 10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}
 
 spring:
   application:
@@ -14,21 +10,39 @@ spring:
       host: localhost
       port: 6379
 
-rate-limiter:
-  requests-per-minute: 10
-
-monitoring-service:
-  url: "http://localhost:8081"
-  log-endpoint: "/api/v1/logs"
-
+# Configuration for API Key Authentication
 api:
   keys:
-  # In a real application, use a secure vault (e.g., HashiCorp Vault, AWS Secrets Manager)
-  - key: "test-key-123"
-    secret: "test-secret-456" # This should be a securely hashed value in production
+    - key: "api-key-1"
+      secret: "secret-1"
+    - key: "api-key-2"
+      secret: "secret-2"
+    - key: "api-key-3"
+      secret: "secret-3"
+    # This key is for authentication but has no specific rate limit config, so it will use the default.
+    - key: "api-key-default"
+      secret: "secret-default"
+
+# Configuration for Rate Limiting
+rate-limiter:
+  default-limit: 10 # Default requests per minute for any authenticated key not listed below
+  configs:
+    # We've lowered the limit from 100 to 5 for easier testing.
+    - api-key: "api-key-1"
+      algorithm: "fixed-window"
+      limit: 5
+    - api-key: "api-key-2"
+      algorithm: "token-bucket"
+      limit: 200 # For token bucket, this is the capacity
+    - api-key: "api-key-3"
+      algorithm: "sliding-window-log"
+      limit: 50
 
 management:
   endpoints:
     web:
       exposure:
         include: "health"
+
+monitoring-service:
+  url: http://localhost:8081/api/monitoring
