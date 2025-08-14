@@ -7,6 +7,7 @@ import com.ratelimiter.shared.dto.RequestLogDto;
 import com.ratelimiter.shared.enums.RequestStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class MonitoringService {
 
     private final RequestLogRepository requestLogRepository;
+    // ✅ 1. Inject the WebSocket messaging template
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public void saveRequestLog(RequestLogDto requestLogDto) {
@@ -29,6 +32,9 @@ public class MonitoringService {
 
         requestLogRepository.save(logEntry);
         log.debug("Saved request log to database: {}", logEntry.getId());
+
+        // ✅ 2. After saving, broadcast the new analytics data
+        broadcastAnalyticsUpdate();
     }
 
     public AnalyticsDto getAnalytics() {
@@ -37,5 +43,16 @@ public class MonitoringService {
         long total = allowed + blocked;
 
         return new AnalyticsDto(total, allowed, blocked);
+    }
+
+    /**
+     * ✅ 3. New private method to calculate and broadcast the update.
+     * This sends the latest AnalyticsDto to all clients subscribed to "/topic/analytics".
+     */
+    private void broadcastAnalyticsUpdate() {
+        AnalyticsDto analytics = getAnalytics();
+        log.info("Broadcasting analytics update: Total={}, Allowed={}, Blocked={}",
+                analytics.getTotalRequests(), analytics.getAllowedRequests(), analytics.getBlockedRequests());
+        messagingTemplate.convertAndSend("/topic/analytics", analytics);
     }
 }

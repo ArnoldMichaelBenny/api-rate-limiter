@@ -5,14 +5,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+// 1. Import java.time.Instant
+import java.time.Instant;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class RequestLogDto {
     private String ipAddress;
-    private LocalDateTime timestamp;
+    // 2. This is the required change
+    private Instant timestamp;
     private RequestStatus status;
     private String path;
 }

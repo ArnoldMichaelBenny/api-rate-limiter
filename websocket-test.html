@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Analytics Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f9; color: #333; padding: 20px; }
+        #status { font-weight: bold; padding: 10px; border-radius: 5px; }
+        .connected { color: #2e7d32; background-color: #e8f5e9; }
+        .disconnected { color: #c62828; background-color: #ffebee; }
+        .analytics { margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #fff; }
+        h2 { border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+        p { font-size: 1.2em; }
+    </style>
+</head>
+<body>
+<h1>Live Analytics Dashboard</h1>
+<div id="status" class="disconnected">Connecting...</div>
+
+<div class="analytics">
+    <h2>Request Counts</h2>
+    <p>Total Requests: <strong id="total">0</strong></p>
+    <p>Allowed Requests: <strong id="allowed">0</strong></p>
+    <p>Blocked Requests: <strong id="blocked">0</strong></p>
+</div>
+
+<script type="text/javascript">
+    var stompClient = null;
+
+    function connect() {
+        // Connect to the WebSocket endpoint you configured
+        var socket = new SockJS('http://localhost:8081/ws-monitoring');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            // Connection successful!
+            document.getElementById('status').textContent = 'Connected!';
+            document.getElementById('status').className = 'connected';
+            console.log('Connected: ' + frame);
+
+            // Subscribe to the topic where analytics are broadcast
+            stompClient.subscribe('/topic/analytics', function (message) {
+                // When a message arrives, parse it and update the page
+                var analytics = JSON.parse(message.body);
+                document.getElementById('total').textContent = analytics.totalRequests;
+                document.getElementById('allowed').textContent = analytics.allowedRequests;
+                document.getElementById('blocked').textContent = analytics.blockedRequests;
+            });
+        }, function(error) {
+            // Connection failed
+            document.getElementById('status').textContent = 'Disconnected. Check console for errors.';
+            document.getElementById('status').className = 'disconnected';
+            console.error('STOMP error: ' + error);
+        });
+    }
+
+    // Start the connection process when the page loads
+    connect();
+</script>
+</body>
+</html>

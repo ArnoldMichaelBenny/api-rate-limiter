@@ -18,6 +18,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws-monitoring").withSockJS();
+        // ✅ The final fix is to use setAllowedOriginPatterns instead of setAllowedOrigins
+        registry.addEndpoint("/ws-monitoring")
+                .setAllowedOriginPatterns("*") // Change this line
+                .withSockJS();
     }
 }
