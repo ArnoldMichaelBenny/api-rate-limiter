@@ -1,9 +1,12 @@
-# Test-specific properties
+# This is the property that fixes the build failure
+spring:
+  application:
+    name: gateway-service-test
 
+# Your well-structured test properties
 monitoring-service:
   url: "http://localhost:9999/test-monitoring"
-  log-endpoint: "/api/v1/test-logs"
 
 rate-limiter:
   default-limit: 10
-  configs: [] # No specific configs needed for the context test
+  configs: [] # Empty list is perfect for the context test

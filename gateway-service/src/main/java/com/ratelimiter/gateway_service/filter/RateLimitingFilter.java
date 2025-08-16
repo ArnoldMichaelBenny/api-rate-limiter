@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-// ✅ Only one import is needed
 import java.time.Instant;
 
 @Component
@@ -26,25 +25,30 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     private final RateLimiterService rateLimiterService;
     private final MonitoringClient monitoringClient;
 
+    // Only filter /api/** endpoints
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return !request.getRequestURI().startsWith("/api/");
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String apiKey = getApiKey(request);
+        // Ensure authenticated user is present
+        String apiKey = request.getHeader("X-API-KEY");
         if (apiKey == null || apiKey.isEmpty()) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"Missing API Key.\"}");
             return;
         }
-
-        String requestURI = request.getRequestURI();
-        log.debug("Processing request from api key: {} for URI: {}", apiKey, requestURI);
 
         if (rateLimiterService.isAllowed(apiKey)) {
             log.debug("Request allowed for api key: {}", apiKey);
             logRequest(request, RequestStatus.ALLOWED);
             filterChain.doFilter(request, response);
         } else {
-            log.warn("Rate limit exceeded for api key: {} on URI: {}", apiKey, requestURI);
+            log.warn("Rate limit exceeded for api key: {} on URI: {}", apiKey, request.getRequestURI());
             logRequest(request, RequestStatus.BLOCKED);
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             response.setContentType("application/json");
@@ -60,9 +64,5 @@ public class RateLimitingFilter extends OncePerRequestFilter {
                 request.getRequestURI()
         );
         monitoringClient.logRequest(logDto);
-    }
-
-    private String getApiKey(HttpServletRequest request) {
-        return request.getHeader("X-API-KEY");
     }
 }

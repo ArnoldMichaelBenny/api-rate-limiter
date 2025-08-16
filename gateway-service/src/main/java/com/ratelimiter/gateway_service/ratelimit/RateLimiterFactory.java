@@ -1,44 +1,51 @@
 package com.ratelimiter.gateway_service.ratelimit;
 
 import com.ratelimiter.gateway_service.model.ApiKeyConfig;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Factory to create and cache RateLimiter instances based on API key configuration.
+ */
 @Component
-@RequiredArgsConstructor
 public class RateLimiterFactory {
-    private final RedisTemplate<String, String> redisTemplate;
 
-    // ✅ This cache now holds ALL rate limiters to ensure defaults are also cached.
+    private final RedisTemplate<String, String> stringRedisTemplate;
+    private final RedisTemplate<String, Long> longRedisTemplate;
     private final Map<String, RateLimiter> rateLimiterCache = new ConcurrentHashMap<>();
 
-    /**
-     * Gets a cached RateLimiter instance based on the given configuration.
-     * If a limiter for the API key doesn't exist in the cache, it creates one
-     * and caches it before returning. This is the single entry point for getting a limiter.
-     */
+    public RateLimiterFactory(
+            RedisTemplate<String, String> stringRedisTemplate,
+            @Qualifier("redisScriptTemplate") RedisTemplate<String, Long> longRedisTemplate) {
+        this.stringRedisTemplate = stringRedisTemplate;
+        this.longRedisTemplate = longRedisTemplate;
+    }
+
     public RateLimiter getRateLimiter(ApiKeyConfig config) {
-        // computeIfAbsent ensures thread-safe, atomic creation and caching.
         return rateLimiterCache.computeIfAbsent(config.getApiKey(), key -> createRateLimiter(config));
     }
 
-    /**
-     * ✅ Now a private helper method. The factory manages its own creation logic internally.
-     * Creates a new RateLimiter instance based on the algorithm specified in the config.
-     */
     private RateLimiter createRateLimiter(ApiKeyConfig config) {
-        switch (config.getAlgorithm()) {
+        switch (config.getAlgorithm().toLowerCase()) {
             case "token-bucket":
-                return new TokenBucketRateLimiter(redisTemplate, config.getLimit(), config.getLimit() / 2);
+                // Allow configurable refill rate from YAML, fallback to limit/10 if not set
+                int refillRate = (config.getRefillRate() != null && config.getRefillRate() > 0)
+                        ? config.getRefillRate()
+                        : Math.max(1, config.getLimit() / 10);
+                return new TokenBucketRateLimiter(longRedisTemplate, config.getLimit(), refillRate);
+
             case "sliding-window-log":
-                return new SlidingWindowLogRateLimiter(redisTemplate, config.getLimit(), 60);
+                // Default 60-second window
+                return new SlidingWindowLogRateLimiter(stringRedisTemplate, config.getLimit(), 60);
+
             case "fixed-window":
             default:
-                return new FixedWindowRateLimiter(redisTemplate, config.getLimit(), 60);
+                // Default 60-second window
+                return new FixedWindowRateLimiter(stringRedisTemplate, config.getLimit(), 60);
         }
     }
 }
