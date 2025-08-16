@@ -25,17 +25,13 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     private final RateLimiterService rateLimiterService;
     private final MonitoringClient monitoringClient;
 
-    // Only filter /api/** endpoints
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !request.getRequestURI().startsWith("/api/");
-    }
+    // ✅ FIX: The shouldNotFilter method has been removed.
+    // The filter will now apply to all requests.
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // Ensure authenticated user is present
         String apiKey = request.getHeader("X-API-KEY");
         if (apiKey == null || apiKey.isEmpty()) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());

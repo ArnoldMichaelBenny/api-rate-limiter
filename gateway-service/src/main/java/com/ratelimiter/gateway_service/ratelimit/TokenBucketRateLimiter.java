@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
-import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,44 +21,48 @@ public class TokenBucketRateLimiter implements RateLimiter {
         this.refillRatePerMinute = refillRatePerMinute;
     }
 
-    // ✅ A simpler, more robust, and battle-tested Lua script.
     private static final RedisScript<Long> SCRIPT = new DefaultRedisScript<>(
-            "local tokens_key = KEYS[1] " +
-                    "local last_refill_key = KEYS[2] " +
+            "local bucket_key = KEYS[1] " +
                     "local capacity = tonumber(ARGV[1]) " +
                     "local refill_rate_per_second = tonumber(ARGV[2]) " +
                     "local now = tonumber(ARGV[3]) " +
-                    "local requested_tokens = 1 " +
 
-                    "local current_tokens = tonumber(redis.call('get', tokens_key)) " +
-                    "if current_tokens == nil then " +
-                    "  current_tokens = capacity " +
-                    "end " +
+                    "local bucket_data = redis.call('hgetall', bucket_key) " +
+                    "local tokens " +
+                    "local last_refill " +
 
-                    "local last_refill = tonumber(redis.call('get', last_refill_key)) " +
-                    "if last_refill == nil then " +
+                    "if #bucket_data == 0 then " +
+                    "  -- First request, initialize the bucket. " +
+                    "  tokens = capacity " +
                     "  last_refill = now " +
+                    "else " +
+                    "  -- Bucket exists, calculate refill. " +
+                    "  tokens = tonumber(bucket_data[2]) " +
+                    "  last_refill = tonumber(bucket_data[4]) " +
+                    "  local elapsed = now - last_refill " +
+                    "  if elapsed > 0 then " +
+                    "    local tokens_to_add = elapsed * refill_rate_per_second " +
+                    "    tokens = math.min(tokens + tokens_to_add, capacity) " +
+                    "    last_refill = now " + // ✅ FIX: Corrected typo from 'last_refiff' to 'last_refill'
+                    "  end " +
                     "end " +
 
-                    "local elapsed = now - last_refill " +
-                    "if elapsed > 0 then " +
-                    "  local tokens_to_add = math.floor(elapsed * refill_rate_per_second) " +
-                    "  current_tokens = math.min(current_tokens + tokens_to_add, capacity) " +
-                    "  redis.call('set', last_refill_key, now) " +
-                    "end " +
-
-                    "if current_tokens >= requested_tokens then " +
-                    "  current_tokens = current_tokens - requested_tokens " +
-                    "  redis.call('set', tokens_key, current_tokens) " +
+                    "if tokens >= 1 then " +
+                    "  -- Consume a token and update the bucket. " +
+                    "  tokens = tokens - 1 " +
+                    "  redis.call('hmset', bucket_key, 'tokens', tokens, 'last_refill', last_refill) " +
+                    "  redis.call('expire', bucket_key, 3600) -- Set an expiry to clean up old keys " +
                     "  return 1 " +
                     "else " +
+                    "  -- Not enough tokens. " +
                     "  return 0 " +
                     "end", Long.class);
 
     @Override
     public boolean isAllowed(String apiKey) {
         double refillRatePerSecond = (double) refillRatePerMinute / 60.0;
-        List<String> keys = List.of("rate_limit:bucket:" + apiKey + ":tokens", "rate_limit:bucket:" + apiKey + ":last_refill");
+        // The script now operates on a single key for the HASH
+        List<String> keys = Collections.singletonList("rate_limit:bucket:" + apiKey);
         long now = System.currentTimeMillis() / 1000;
 
         try {

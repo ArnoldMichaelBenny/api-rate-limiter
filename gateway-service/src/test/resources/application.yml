@@ -1,12 +1,22 @@
-# This is the property that fixes the build failure
+# Properties required for the test context to start successfully
 spring:
   application:
     name: gateway-service-test
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
-# Your well-structured test properties
+# Provide a dummy list of API keys for the test context
+api:
+  keys:
+    - key: "test-key"
+      secret: "test-secret"
+
+# Provide dummy values for other properties
 monitoring-service:
-  url: "http://localhost:9999/test-monitoring"
+  url: "http://localhost:9999"
 
 rate-limiter:
   default-limit: 10
-  configs: [] # Empty list is perfect for the context test
+  configs: []
