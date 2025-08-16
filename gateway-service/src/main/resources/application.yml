@@ -1,48 +1,89 @@
-# gateway-service/src/main/resources/application.yml
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 spring:
   application:
     name: gateway-service
+  aop:
+    auto: true
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
-# Configuration for API Key Authentication
+logging:
+  level:
+    com.ratelimiter.gateway_service: DEBUG
+    com.ratelimiter.gateway_service.ratelimit: TRACE
+
+# ================================================================
+# API Keys (Environment Variables Recommended in Production)
+# ================================================================
 api:
   keys:
-    - key: "api-key-1"
-      secret: "secret-1"
-    - key: "api-key-2"
-      secret: "secret-2"
-    - key: "api-key-3"
-      secret: "secret-3"
-    # This key is for authentication but has no specific rate limit config, so it will use the default.
-    - key: "api-key-default"
-      secret: "secret-default"
+    - key: ${API_KEY_1:api-key-1}
+      secret: ${API_SECRET_1:secret-1}
+    - key: ${API_KEY_2:api-key-2}
+      secret: ${API_SECRET_2:secret-2}
+    - key: ${API_KEY_3:api-key-3}
+      secret: ${API_SECRET_3:secret-3}
+    - key: ${API_KEY_LOAD:api-key-load}   # High-throughput load testing key
+      secret: ${API_SECRET_LOAD:secret-load}
+    - key: ${API_KEY_LIMIT:api-key-limit} # Strict limit testing key
+      secret: ${API_SECRET_LIMIT:secret-limit}
 
-# Configuration for Rate Limiting
+# ================================================================
+# Rate Limiter Configurations
+# ================================================================
 rate-limiter:
-  default-limit: 10 # Default requests per minute for any authenticated key not listed below
+  default-limit: ${RATE_LIMIT_DEFAULT:10}
   configs:
-    # We've lowered the limit from 100 to 5 for easier testing.
-    - api-key: "api-key-1"
-      algorithm: "fixed-window"
-      limit: 5
-    - api-key: "api-key-2"
-      algorithm: "token-bucket"
-      limit: 200 # For token bucket, this is the capacity
-    - api-key: "api-key-3"
-      algorithm: "sliding-window-log"
-      limit: 50
+    - api-key: ${API_KEY_1:api-key-1}
+      algorithm: fixed-window
+      limit: ${RATE_LIMIT_KEY1:5}
 
+    - api-key: ${API_KEY_2:api-key-2}
+      algorithm: token-bucket
+      limit: ${RATE_LIMIT_KEY2:200}
+      refill-rate: ${RATE_REFILL_KEY2:50}
+
+    - api-key: ${API_KEY_3:api-key-3}
+      algorithm: sliding-window-log
+      limit: ${RATE_LIMIT_KEY3:50}
+
+    - api-key: ${API_KEY_LOAD:api-key-load}
+      algorithm: token-bucket
+      limit: ${RATE_LIMIT_LOAD:100000}
+      refill-rate: ${RATE_REFILL_LOAD:100000}
+
+    - api-key: ${API_KEY_LIMIT:api-key-limit}
+      algorithm: token-bucket
+      limit: ${RATE_LIMIT_LIMIT:5}
+      refill-rate: ${RATE_REFILL_LIMIT:1}
+
+# ================================================================
+# Health Check Endpoint
+# ================================================================
 management:
   endpoints:
     web:
       exposure:
-        include: "health"
+        include: health,info
 
+# ================================================================
+# External Service Configurations
+# ================================================================
 monitoring-service:
-  url: http://localhost:8081/api/v1
+  url: ${MONITORING_SERVICE_URL:http://localhost:8081/api/v1}
+
+# ================================================================
+# Resilience4j Circuit Breaker
+# ================================================================
+resilience4j:
+  circuitbreaker:
+    instances:
+      monitoring-service:
+        failure-rate-threshold: 50
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        wait-duration-in-open-state: 5s

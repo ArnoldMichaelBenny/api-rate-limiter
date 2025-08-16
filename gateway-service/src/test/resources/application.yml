@@ -1,9 +1,22 @@
-# Test-specific properties
+# Properties required for the test context to start successfully
+spring:
+  application:
+    name: gateway-service-test
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
+# Provide a dummy list of API keys for the test context
+api:
+  keys:
+    - key: "test-key"
+      secret: "test-secret"
+
+# Provide dummy values for other properties
 monitoring-service:
-  url: "http://localhost:9999/test-monitoring"
-  log-endpoint: "/api/v1/test-logs"
+  url: "http://localhost:9999"
 
 rate-limiter:
   default-limit: 10
-  configs: [] # No specific configs needed for the context test
+  configs: []
